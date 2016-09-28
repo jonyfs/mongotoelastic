@@ -25,14 +25,29 @@ public class MongoToElasticExporter {
     ElasticsearchTemplate elasticsearchTemplate;
 
     public void run() {
-
+        int limit = 1000;
+        int skip;
         LOGGER.info("Starting...");
         for (String collectionName : mongoTemplate.getCollectionNames()) {
+            skip = 0;
             LOGGER.info("Looping collection {} ", collectionName);
             DocumentCallbackHandler documentCallbackHandler = new DocumentHandler(elasticsearchTemplate, collectionName);
+
             Query query = new Query();
-            query.limit(1000);
-            mongoTemplate.executeQuery(query, collectionName, documentCallbackHandler);
+            long total = mongoTemplate.count(query, collectionName);
+            LOGGER.info("{} documents. Processing...", total);
+            while (skip <= total) {
+
+                query.skip(skip).limit(limit);
+
+                try {
+                    LOGGER.info("Query {}  with skip({}).limit({})", query, skip, limit);
+                    mongoTemplate.executeQuery(query, collectionName, documentCallbackHandler);
+                } catch (Exception e) {
+                    LOGGER.error("Failure!", e);
+                }
+                skip += limit;
+            }
         }
     }
 
