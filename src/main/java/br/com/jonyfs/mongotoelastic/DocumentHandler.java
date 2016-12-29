@@ -16,10 +16,10 @@ public class DocumentHandler implements DocumentCallbackHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentHandler.class);
 
-    private ElasticsearchTemplate elasticsearchTemplate;
-    private String collection;
+    private final ElasticsearchTemplate elasticsearchTemplate;
+    private final String collection;
 
-    private Gson gson = GsonTypeAdapter.getGsonBuilder(GsonTypeAdapter.GsonAdapterType.SERIALIZER).create();
+    private final Gson gson = GsonTypeAdapter.getGsonBuilder(GsonTypeAdapter.GsonAdapterType.SERIALIZER).create();
 
     public DocumentHandler(ElasticsearchTemplate elasticsearchTemplate, String collection) {
         this.elasticsearchTemplate = elasticsearchTemplate;
@@ -35,23 +35,10 @@ public class DocumentHandler implements DocumentCallbackHandler {
             elasticsearchTemplate.createIndex(this.collection.toLowerCase());
         }
 
-        // IndexQuery indexQuery = new IndexQueryBuilder().withObject(dbObject)
-        // .withIndexName(this.collection).withId(dbObject.get("_id").toString()).build();
-
-        // elasticsearchTemplate.getClass().
-        // elasticsearchTemplate.index(indexQuery);
-
         String id = dbObject.get("_id").toString();
 
         dbObject.removeField("_id");
         String object = gson.toJson(dbObject);
-
-        // IndexRequest indexRequest = new IndexRequest();
-        // indexRequest.id(dbObject.get("_id").toString());
-        // indexRequest.source(object);
-        // indexRequest.index(this.collection.toLowerCase());
-        // IndexResponse response =
-        // elasticsearchTemplate.getClient().index(indexRequest).actionGet();
 
         BulkRequestBuilder bulkRequest = elasticsearchTemplate.getClient().prepareBulk();
 

@@ -19,9 +19,6 @@ public class MongoToElasticExporter {
     MongoTemplate mongoTemplate;
 
     @Resource
-    ElasticSearchTransporter elasticSearchTransporter;
-
-    @Resource
     ElasticsearchTemplate elasticsearchTemplate;
 
     public void run() {
